@@ -1,3 +1,9 @@
+/* mAze - jQuery Plugin for Button Rollovers
+	Canvas code based off of this tutorial-
+	http://www.ajaxblender.com/howto-convert-image-to-grayscale-using-javascript.html
+*/	
+
+
 ;(function( $, window, document, undefined ){
 
 	console = (console) ? console : { log: function() {} }
