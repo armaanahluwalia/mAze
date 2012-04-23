@@ -1,6 +1,6 @@
 /* mAze - jQuery Plugin for Button Rollovers
-	Canvas code based off of this tutorial-
-	http://www.ajaxblender.com/howto-convert-image-to-grayscale-using-javascript.html
+   Author - Armaan Ahluwalia
+   Dependencies : Pixastic - http://www.pixastic.com/
 */	
 
 
@@ -11,124 +11,95 @@
   // the plugin prototype
   var mAze = {
     defaults: {
-
+      'gray' : {
+        effect : 'desaturate',
+        options : null,
+        timing : 200
+      }
     },
-		options : null,
+    _options : null,
     init: function(options, elem) {
 			var self = this;
-			$('*[data-effect]').each(function() {
-				self.setupSourceImage(this);
+			
+			this._options = $.extend({}, this.defaults, options);
+			
+			$('*[data-btn]').each(function() {
+				var $btn = $(this).addClass('mAze_btn');
+			  var effectName = $btn.attr('data-btn');			  
+				var dfd = self.setupImages(this, effectName);
+				(function(btn, effectName) {
+  				dfd.done(function() {
+  				  self.setupHover(btn, effectName);
+  				});				  
+				})($btn, effectName);
 			});
       return this;
     },
-		setupSourceImage : function(elem) {
+    setupHover : function(container, effect) {
+      var self = this;
+      $(container).hover(
+        function() {
+          $('.mAze_o', this).animate({opacity:0}, self._options[effect]['timing']);
+        },
+        function() {
+          $('.mAze_o', this).animate({opacity:1}, self._options[effect]['timing']);
+        }
+      )
+    },
+		setupImages : function(container, effectName) {
+		  var dfd = $.Deferred();
 			self = this;
-			$this = $(elem);
+			$this = $(container);
+			
+			//Check if it is an anchor element
 			if(!$this.is('a')) {
 				console.log('mAze must be applied to an anchor tag');
 				return;
-			}			
-			var $srcImg = $('img',elem).first();
+			}
+			
+			var $srcImg = $('img',container).first();
 			var hasImage = ($srcImg.length >= 1) ? true : false;
 			
+			//If there is no image inside the tag
 			if(!hasImage) {
-				console.log('no image');
-				var bgSrc = self.getBG( $this.css('backgroundImage') );
-				if(!bgSrc) {
-					console.log('.mAze element is missing an image source.');
-					return false;
-				}
-				else {						
-					var bgPos = $this.css('backgroundPosition');
-					var width = $this.width();
-					var height = $this.height();
-					var offsetX = self.getPosition(bgPos, 0);
-					var offsetY = self.getPosition(bgPos, 1);
-					console.log(width, height, offsetX, offsetY);
-					if(!width || !height) {
-						console.log('mAze element has a background image but is missing a dimension(width or height)');
-						return false;
-					}
-					self.createImage(elem, bgSrc, width, height, offsetX, offsetY);
-				}
-			} else {
-				this.transformImage($srcImg);
+				throw('.mAze element is missing an image source.');
+				return false;
 			}
+			$this.css({ 'width' : $srcImg.width(), 'height' : $srcImg.height(), 'display': 'block' })
+
+			var under_dfd = self.setupUnderImg( container, $srcImg, effectName );
+			var over_dfd = self.setupOverImg( container, $srcImg , effectName );
+			(function(dfd) {
+  			$.when(under_dfd, over_dfd).
+  				done(function() {
+  				  dfd.resolve();
+  				});			  
+			})(dfd);
+			return dfd;
 		},
-		transformImage : function(imgObj) {
-			$imgObj = $(imgObj);
-			var canvas = document.createElement('canvas');
-			var canvasContext = canvas.getContext('2d');
-			var imgW = $imgObj.width();
-			var imgH = $imgObj.height();
-			canvas.width = imgW;
-			canvas.height = imgH;
-			console.log('transforming image', imgObj);
-			canvasContext.drawImage($imgObj.get(0), 0, 0);
-
-			var imgPixels = canvasContext.getImageData(0, 0, imgW, imgH);
-
-			for(var y = 0; y < imgPixels.height; y++){
-			     for(var x = 0; x < imgPixels.width; x++){
-			          var i = (y * 4) * imgPixels.width + x * 4;
-			          var avg = (imgPixels.data[i] + imgPixels.data[i + 1] + imgPixels.data[i + 2]) / 3;
-			          imgPixels.data[i] = avg;
-			          imgPixels.data[i + 1] = avg;
-			          imgPixels.data[i + 2] = avg;
-			     }			
-			}
-			canvasContext.putImageData(imgPixels, 0, 0, 0, 0, imgPixels.width, imgPixels.height);
-
-			return canvas.toDataURL();
+		setupUnderImg : function(container, input, effect ) {
+	    var dfd = $.Deferred();
+	    var theClass = (this._options[effect]['reverse']) ? 'mAze_o' : 'mAze_u';
+	    $(input).addClass(theClass);
+	    dfd.resolve();
+	    return dfd;
 		},
-		createImage : function(container, imgUrl, width, height, offsetX, offsetY) {
+		setupOverImg : function(container, input, effect ) {
+	    var dfd = $.Deferred();
+      this.transformImage(dfd, container, input, effect);
+	    return dfd;
+		},		
+		transformImage : function(dfd, container, img, effect) {
 			var self = this;
-			var imgObj = new Image();
-			imgObj.src = imgUrl;
-			$(imgObj).load(function() {
-				self.generateNewImage(container, this, width, height, offsetX, offsetY);
-			});
-		},
-		generateNewImage : function(container, imgObj, width, height, offsetX, offsetY) {
-			console.log('generating new image ', imgObj, width, height);
-			var canvas = document.createElement('canvas');
-			var canvasContext = canvas.getContext('2d');
-			var imgW = width;
-			var imgH = height;
-			canvas.width = imgW;
-			canvas.height = imgH;
-			canvasContext.drawImage(imgObj, 0, 0);
-
-			var imgPixels = canvasContext.getImageData(0, 0, imgW, imgH);
-			console.log('imgPixels', imgPixels, imgW, imgH);
-			for(var y = 0; y < imgPixels.height; y++){
-			     for(var x = 0; x < imgPixels.width; x++){
-			          var i = (y * 4) * imgPixels.width + x * 4;
-			          var avg = (imgPixels.data[i] + imgPixels.data[i + 1] + imgPixels.data[i + 2]) / 3;
-			          imgPixels.data[i] = avg;
-			          imgPixels.data[i + 1] = avg;
-			          imgPixels.data[i + 2] = avg;
-			     }
-			}
-			canvasContext.putImageData(imgPixels, 0, 0, 0, 0, imgPixels.width, imgPixels.height);
-			console.log('creating new image ', container, imgObj, width, height, offsetX, offsetY, canvas.toDataURL());
-			$(container).html('');
-			$newImg = $('<img>').attr('src', canvas.toDataURL()).width(width).height(height).appendTo(container).addClass('createdImg');
-			this.transformImage($newImg);
-		},
-		getBG : function(str) {
-			if(!str) return false;
-			return str.replace(/url|[\(\)]/g,'');
-		},
-		getPosition : function(str, idx) {
-			console.log(str, idx);
-			var rawArr = str.split(' ');
-			if(typeof rawArr[idx] == undefined) return false;
-			return this.retainNumbers(rawArr[idx]);
-		},
-		retainNumbers : function(str) {
-			return str.replace(/[^\d]/g, '');
-		}		
+			$container = $(container);
+		  var effectData = this._options[effect];
+		  if(!effectData) console.log('some mAze effect is undefined');
+	    var theClass = (effectData['reverse']) ? 'mAze_u' : 'mAze_o';
+	    var theRemoveClass = (effectData['reverse']) ? 'mAze_o' : 'mAze_u';
+		  $newImg = $(img).clone().removeClass(theRemoveClass).appendTo($container);
+      $newImg.pixastic(effectData['effect'], effectData['options']).addClass(theClass);
+		  dfd.resolve();
+		}
   }
 
 	$.plugin = function( name, object ) {
@@ -143,7 +114,5 @@
 	};
 
 	$.plugin('mAze', mAze);
-	
-	$('body').mAze();
 
 })( jQuery, window , document );

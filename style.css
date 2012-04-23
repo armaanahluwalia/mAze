@@ -1,3 +1,18 @@
-.button {
-	display:block;
+.mAze_btn {
+	display:inline-block;
+	position: relative;
+}
+.mAze_u {
+  position:absolute;
+  top:0;
+  left:0;
+  outline:none;
+  z-index:1;
+}  
+.mAze_o {
+  position:absolute;
+  top:0;
+  left:0;
+  outline:none;
+  z-index:2;
 }
