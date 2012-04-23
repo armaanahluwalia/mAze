@@ -48,8 +48,8 @@
     },
 		setupImages : function(container, effectName) {
 		  var dfd = $.Deferred();
-			self = this;
-			$this = $(container);
+			var self = this;
+			var $this = $(container);
 			
 			//Check if it is an anchor element
 			if(!$this.is('a')) {
@@ -65,7 +65,7 @@
 				throw('.mAze element is missing an image source.');
 				return false;
 			}
-			$this.css({ 'width' : $srcImg.width(), 'height' : $srcImg.height(), 'display': 'block' })
+			$this.css({ 'width' : $srcImg.width(), 'height' : $srcImg.height(), 'display': 'inline-block' })
 
 			var under_dfd = self.setupUnderImg( container, $srcImg, effectName );
 			var over_dfd = self.setupOverImg( container, $srcImg , effectName );
