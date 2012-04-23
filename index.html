@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <head>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="mAze.css">
+	<style type="text/css" media="screen">
+		a {border:0; outline: none;}
+		a img {border:0; outline: none;}		
+	</style>
 </head>
 <body>
   <header>
@@ -9,7 +13,7 @@
   <div role="main">
 		<a data-btn="gray" href="#"><img src="img/youtube.png" /></a>
 		<a data-btn="gray" href="#"><img src="img/youtube.png" /></a>
-		<a data-btn="blur" href="#"><img src="img/youtube.png" /></a>
+		<a data-btn="glow" href="#"><img src="img/youtube.png" /></a>
   </div>
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
@@ -19,11 +23,15 @@
 
 	<script type="text/javascript" charset="utf-8">
 		$('body').mAze({
-				'blur' : {
+				'glow' : {
 										effect : 'glow',
 										options : { amount:0.5, radius:1.0 },
 										timing : 100,
-										reverse : true
+										reverse : true,
+										ie : {
+											'filter' : 'Alpha(opacity=70)',
+											'background' : '#FFF'
+										}
 								 }
 			});		
 	</script>
