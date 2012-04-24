@@ -57,20 +57,22 @@
 				var theOtherClass = (self._options[effectName]['reverse']) ? 'mAze_o' : 'mAze_u';
 				$underBtn = $('img',$btn).first().addClass(theClass);
 				
-				$btn.css({ 'width' : $underBtn.width(), 'height' : $underBtn.height(), 'display': 'inline-block' })				
-				
-				$overBtn = $underBtn.clone().removeClass(theClass).addClass(theOtherClass).appendTo($btn);
-				for (var i in effects) {
-					$('.mAze_o', $btn).css(i, effects[i]);
-				}				
-	      $btn.hover(
-	        function() {
-	          $('.' + theClass, this).animate({opacity:0}, self._options[effectName]['timing']);
-	        },
-	        function() {
-	          $('.' + theClass, this).animate({opacity:1}, self._options[effectName]['timing']);
-	        }
-				);
+				$underBtn.imagesLoaded(function() {
+  				$btn.css({ 'width' : $underBtn.width(), 'height' : $underBtn.height(), 'display': 'inline-block' })				
+
+  				$overBtn = $underBtn.clone().removeClass(theClass).addClass(theOtherClass).appendTo($btn);
+  				for (var i in effects) {
+  					$('.mAze_o', $btn).css(i, effects[i]);
+  				}				
+  	      $btn.hover(
+  	        function() {
+  	          $('.' + theClass, this).animate({opacity:0}, self._options[effectName]['timing']);
+  	        },
+  	        function() {
+  	          $('.' + theClass, this).animate({opacity:1}, self._options[effectName]['timing']);
+  	        }
+  				);				  
+				});
 			}
 		},
     setupHover : function(container, effect) {
@@ -103,16 +105,19 @@
 				throw('.mAze element is missing an image source.');
 				return false;
 			}
-			$this.css({ 'width' : $srcImg.width(), 'height' : $srcImg.height(), 'display': 'inline-block' })
+			
+			$($srcImg).imagesLoaded(function() {
+  			$this.css({ 'width' : $srcImg.width(), 'height' : $srcImg.height(), 'display': 'inline-block' })
 
-			var under_dfd = self.setupUnderImg( container, $srcImg, effectName );
-			var over_dfd = self.setupOverImg( container, $srcImg , effectName );
-			(function(dfd) {
-  			$.when(under_dfd, over_dfd).
-  				done(function() {
-  				  dfd.resolve();
-  				});			  
-			})(dfd);
+  			var under_dfd = self.setupUnderImg( container, $srcImg, effectName );
+  			var over_dfd = self.setupOverImg( container, $srcImg , effectName );
+  			(function(dfd) {
+    			$.when(under_dfd, over_dfd).
+    				done(function() {
+    				  dfd.resolve();
+    				});			  
+  			})(dfd);			  
+			});
 			return dfd;
 		},
 		setupUnderImg : function(container, input, effect ) {
