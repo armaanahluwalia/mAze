@@ -1,5 +1,9 @@
 # mAze - jQuery Buttonizer #
 
+## Demo ##
+
+http://www.digi-dil.com/mAze
+
 ## Overview ##
 
 This jQuery plugin lets you easily create animation effects on image buttons so you never have to create another rollover sprite again.
@@ -9,7 +13,9 @@ This jQuery plugin lets you easily create animation effects on image buttons so 
 The easiest way to use mAze is to simply add the *data-btn* attribute to your anchor buttons that have images in them. This allows you can choose from the premade mAze effects.
 ```
 <script type="text/javascript>
-  $('body').mAze();
+  $(document).ready(function() {
+    $('body').mAze();
+  });
 </script>
 
 <a data-btn="gray"><img src="my-button.png" /></a>
